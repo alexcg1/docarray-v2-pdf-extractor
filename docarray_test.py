@@ -1,9 +1,7 @@
 import pdfplumber
 from docarray import BaseDoc, DocArray
 from docarray.documents import ImageDoc, TextDoc
-from docarray.typing import AnyUrl, ImageUrl, TorchTensor
-
-from helper import PDFExtractor
+from docarray.typing import AnyUrl
 
 
 class PDFDocument(BaseDoc):
