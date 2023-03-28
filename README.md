@@ -13,3 +13,4 @@ This script takes a PDF and:
 - [ ] Extract tables
 - [ ] Add file and page info to chunks
 - [ ] Write tests
+- [ ] Encode chunks
