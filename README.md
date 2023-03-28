@@ -2,8 +2,7 @@
 
 This script takes a PDF and:
 
-- Extracts images into `doc.image_chunks`
-- Extracts text into `doc.text_chunks`
+- Extracts images and text into `doc.chunks`
 - Extracts metadata into Document attributes
 
 ## TODO
