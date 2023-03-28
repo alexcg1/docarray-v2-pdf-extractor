@@ -1,0 +1,2 @@
+docarray @ git+https://github.com/docarray/docarray@feat-rewrite-v2#egg=docarray[common,torch,image]
+pdfplumber==0.8.0
