@@ -1,2 +1,3 @@
 docarray @ git+https://github.com/docarray/docarray@feat-rewrite-v2#egg=docarray[common,torch,image]
 pdfplumber==0.8.0
+jina @ git+https://github.com/jina-ai/jina@0d15c3bc2afea1034bb40ef2eeef3ed31543a8fa
