@@ -1,7 +1,6 @@
 import csv
 import io
 import tempfile
-from pprint import pprint
 
 import pdfplumber
 from docarray import BaseDoc, DocArray
@@ -42,12 +41,9 @@ class PDFExtractor:
 
     def _extract_metadata(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
-            doc.creation_date = pdf.metadata['CreationDate']
-            doc.mod_date = pdf.metadata['ModDate']
-            if 'Title' in pdf.metadata.keys():
-                doc.title = pdf.metadata['Title']
-            else:
-                doc.title = 'Untitled'
+            doc.creation_date = pdf.metadata.get('CreationDate', None)
+            doc.mod_date = pdf.metadata.get('ModDate', None)
+            doc.title = pdf.metadata.get('Title', 'Untitled')
 
         return doc
 
@@ -113,7 +109,6 @@ class PDFExtractor:
                     with temp_file:
                         output_path = f'{temp_file.name}.png'
                         image_obj.save(output_path)
-                    # temp_file.close()
 
                     image_doc = ImageChunk(
                         url=output_path,
@@ -134,4 +129,4 @@ docs = DocArray([PDFDocument(path='rabbit.pdf')])
 output = PDFExtractor.add_chunks(docs)
 
 print(docs[0])
-print(docs[0].chunks[0])
+# print(docs[0].chunks[0])
