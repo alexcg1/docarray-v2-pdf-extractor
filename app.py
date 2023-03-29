@@ -1,3 +1,5 @@
+import tempfile
+
 import pdfplumber
 from docarray import BaseDoc, DocArray
 from docarray.documents import ImageDoc, TextDoc
@@ -20,6 +22,7 @@ class PDFExtractor:
         map_docs(docs, PDFExtractor._extract_metadata, backend='thread')
         map_docs(docs, PDFExtractor._extract_images)
 
+        # This works tho
         for doc in docs:
             PDFExtractor._extract_text(doc)
             PDFExtractor._extract_images(doc)
@@ -58,8 +61,16 @@ class PDFExtractor:
                     )
                     cropped_page = page.crop(image_bbox)
                     image_obj = cropped_page.to_image(resolution=200)
-                    output_path = f'images/{p}-{i}.png'
-                    image_obj.save(output_path)
+
+                    temp_file = tempfile.NamedTemporaryFile(
+                        prefix='my_temp_file_'
+                    )
+
+                    with temp_file:
+                        output_path = f'{temp_file.name}.png'
+                        image_obj.save(output_path)
+                    # temp_file.close()
+
                     image_doc = ImageDoc(
                         url=output_path,
                         tensor=None,
