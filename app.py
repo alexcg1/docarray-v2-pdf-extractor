@@ -54,9 +54,9 @@ class PDFExtractor:
     def _extract_text(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
             for page in pdf.pages:
-                for page_no, page in enumerate(pdf.pages):
+                for page_no, page in enumerate(pdf.pages, start=1):
                     text = page.extract_text()
-                    text_doc = TextDoc(
+                    text_doc = TextChunk(
                         text=text,
                         tags={
                             'media_type': 'image',
@@ -69,7 +69,7 @@ class PDFExtractor:
     def _extract_tables(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
             for page in pdf.pages:
-                for page_no, page in enumerate(pdf.pages):
+                for page_no, page in enumerate(pdf.pages, start=1):
                     tables = page.extract_tables()
                     for table in tables:
                         # pprint(table)
@@ -79,7 +79,7 @@ class PDFExtractor:
                         )
                         writer.writerows(table)
                         csv_data = output.getvalue()
-                        csv_doc = TextDoc(
+                        csv_doc = TextChunk(
                             text=csv_data,
                             tags={
                                 'media_type': 'table',
@@ -95,7 +95,7 @@ class PDFExtractor:
 
     def _extract_images(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
-            for page_no, page in enumerate(pdf.pages):
+            for page_no, page in enumerate(pdf.pages, start=1):
                 for image in page.images:
                     image_bbox = (
                         image['x0'],
@@ -115,7 +115,7 @@ class PDFExtractor:
                         image_obj.save(output_path)
                     # temp_file.close()
 
-                    image_doc = ImageDoc(
+                    image_doc = ImageChunk(
                         url=output_path,
                         tensor=None,
                         embedding=None,
@@ -134,3 +134,4 @@ docs = DocArray([PDFDocument(path='rabbit.pdf')])
 output = PDFExtractor.add_chunks(docs)
 
 print(docs[0])
+print(docs[0].chunks[0])
