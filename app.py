@@ -147,14 +147,22 @@ from executor import PDFDocument, PDFExtractorExecutor
 
 docs = DocArray([PDFDocument(path='rabbit.pdf')])
 
+print('DEBUG: print doc outside deployment')
+print(docs[0])
+
 # output = PDFExtractor(content_types=['text']).add_chunks(docs)
 dep = Deployment(
     uses=PDFExtractorExecutor, uses_with={'content_types': 'text'}
 )
 
 with dep:
-    output = dep.post(inputs=docs, on='/chunkify')
+    print('DEBUG: print doc inside deployment')
+    print(docs[0])
+    output = dep.post(inputs=docs, on='/print')   # this works fine
+
+    # this complaints it can't find path in `AnyDoc`, despite me sending it a PDFDocument
+    # output = dep.post(inputs=docs, on='/extract')
 
 
-print(docs[0])
+# print(docs[0])
 # print(docs[0].chunks[0])

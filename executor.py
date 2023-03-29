@@ -160,18 +160,11 @@ class PDFExtractorExecutor(Executor):
 
     @requests(on='/print')
     def print_docs(self, docs: DocArray, **kwargs):
-        print(docs)
-        print(self.content_types)
-
-    @requests(on='/chunkify')
-    def add_chunks(self, docs: DocArray, **kwargs):
-        # None of these map_docs lines do anything to the doc
-        # map_docs(docs, PDFExtractor._extract_text)
-        # map_docs(docs, PDFExtractor._extract_metadata, backend='thread')
-        # map_docs(docs, PDFExtractor._extract_images)
-
-        # This works tho
+        print('DEBUG: print doc inside Executor')
         print(docs[0])
+
+    @requests(on='/extract')
+    def add_chunks(self, docs: DocArray, **kwargs):
         for doc in docs:
             print(self.content_types)
             print(doc)
