@@ -8,6 +8,8 @@ from docarray.documents import ImageDoc, TextDoc
 from docarray.typing import AnyUrl
 from docarray.utils.map import map_docs
 
+# from jina import Executor
+
 
 class PDFDocument(BaseDoc):
     chunks: DocArray = DocArray()
@@ -26,7 +28,15 @@ class TextChunk(TextDoc):
 
 
 class PDFExtractor:
-    def add_chunks(docs: DocArray):
+    def __init__(
+        self,
+        content_types: list = ['text', 'table', 'image', 'metadata'],
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self.content_types = content_types
+
+    def add_chunks(self, docs: DocArray):
         # None of these map_docs lines do anything to the doc
         # map_docs(docs, PDFExtractor._extract_text)
         # map_docs(docs, PDFExtractor._extract_metadata, backend='thread')
@@ -34,12 +44,17 @@ class PDFExtractor:
 
         # This works tho
         for doc in docs:
-            PDFExtractor._extract_text(doc)
-            PDFExtractor._extract_tables(doc)
-            PDFExtractor._extract_images(doc)
-            PDFExtractor._extract_metadata(doc)
+            if 'text' in self.content_types:
+                self._extract_text(doc)
+            if 'table' in self.content_types:
+                self._extract_tables(doc)
+            if 'image' in self.content_types:
+                self._extract_images(doc)
+            if 'metadata' in self.content_types:
+                self._extract_metadata(doc)
 
-    def _extract_metadata(doc: PDFDocument):
+    def _extract_metadata(self, doc: PDFDocument):
+        print('Extracting metadata')
         with pdfplumber.open(doc.path) as pdf:
             doc.creation_date = pdf.metadata.get('CreationDate', None)
             doc.mod_date = pdf.metadata.get('ModDate', None)
@@ -47,7 +62,8 @@ class PDFExtractor:
 
         return doc
 
-    def _extract_text(doc: PDFDocument):
+    def _extract_text(self, doc: PDFDocument):
+        print('Extracting text')
         with pdfplumber.open(doc.path) as pdf:
             for page in pdf.pages:
                 for page_no, page in enumerate(pdf.pages, start=1):
@@ -63,7 +79,8 @@ class PDFExtractor:
                     )
                     doc.chunks.append(text_doc)
 
-    def _extract_tables(doc: PDFDocument):
+    def _extract_tables(self, doc: PDFDocument):
+        print('Extracting tables')
         with pdfplumber.open(doc.path) as pdf:
             for page in pdf.pages:
                 for page_no, page in enumerate(pdf.pages, start=1):
@@ -91,7 +108,8 @@ class PDFExtractor:
                     # text_doc = TextDoc(text=text)
                     # doc.chunks.append(text_doc)
 
-    def _extract_images(doc: PDFDocument):
+    def _extract_images(self, doc: PDFDocument):
+        print('Extracting images')
         with pdfplumber.open(doc.path) as pdf:
             for page_no, page in enumerate(pdf.pages, start=1):
                 for image in page.images:
@@ -129,7 +147,7 @@ class PDFExtractor:
 
 docs = DocArray([PDFDocument(path='rabbit.pdf')])
 
-output = PDFExtractor.add_chunks(docs)
+output = PDFExtractor(content_types=['text']).add_chunks(docs)
 
 print(docs[0])
-# print(docs[0].chunks[0])
+print(docs[0].chunks[0])
