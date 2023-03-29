@@ -2,6 +2,7 @@ import pdfplumber
 from docarray import BaseDoc, DocArray
 from docarray.documents import ImageDoc, TextDoc
 from docarray.typing import AnyUrl
+from docarray.utils.map import map_docs
 
 
 class PDFDocument(BaseDoc):
@@ -14,10 +15,15 @@ class PDFDocument(BaseDoc):
 
 class PDFExtractor:
     def add_chunks(docs: DocArray):
+        # None of these map_docs lines do anything to the doc
+        map_docs(docs, PDFExtractor._extract_text)
+        map_docs(docs, PDFExtractor._extract_metadata, backend='thread')
+        map_docs(docs, PDFExtractor._extract_images)
+
         for doc in docs:
             PDFExtractor._extract_text(doc)
-            PDFExtractor._extract_metadata(doc)
             PDFExtractor._extract_images(doc)
+            PDFExtractor._extract_metadata(doc)
 
     def _extract_metadata(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
@@ -28,6 +34,8 @@ class PDFExtractor:
             else:
                 doc.title = 'Untitled'
 
+        return doc
+
     def _extract_text(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
             for page in pdf.pages:
@@ -35,6 +43,8 @@ class PDFExtractor:
                     text = page.extract_text()
                     text_doc = TextDoc(text=text)
                     doc.chunks.append(text_doc)
+
+        return doc
 
     def _extract_images(doc: PDFDocument):
         with pdfplumber.open(doc.path) as pdf:
