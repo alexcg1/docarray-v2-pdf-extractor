@@ -58,6 +58,7 @@ class PDFExtractor:
                             'media_type': 'image',
                             'filename': str(doc.path),
                             'page_no': page_no,
+                            'parent_id': doc.id,
                         },
                     )
                     doc.chunks.append(text_doc)
@@ -81,6 +82,7 @@ class PDFExtractor:
                                 'media_type': 'table',
                                 'filename': str(doc.path),
                                 'page_no': page_no,
+                                'parent_id': doc.id,
                             },
                         )
                         doc.chunks.append(csv_doc)
@@ -118,6 +120,7 @@ class PDFExtractor:
                             'media_type': 'image',
                             'filename': str(doc.path),
                             'page_no': page_no,
+                            'parent_id': doc.id,
                         },
                     )
                     image_doc.tensor = image_doc.url.load()
