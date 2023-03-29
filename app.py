@@ -60,7 +60,7 @@ class PDFExtractor:
                         text=text,
                         tags={
                             'media_type': 'image',
-                            'filename': 'doc.path',
+                            'filename': str(doc.path),
                             'page_no': page_no,
                         },
                     )
@@ -83,7 +83,7 @@ class PDFExtractor:
                             text=csv_data,
                             tags={
                                 'media_type': 'table',
-                                'filename': 'doc.path',
+                                'filename': str(doc.path),
                                 'page_no': page_no,
                             },
                         )
@@ -121,7 +121,7 @@ class PDFExtractor:
                         embedding=None,
                         tags={
                             'media_type': 'image',
-                            'filename': 'doc.path',
+                            'filename': str(doc.path),
                             'page_no': page_no,
                         },
                     )
