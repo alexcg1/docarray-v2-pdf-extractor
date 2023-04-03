@@ -6,7 +6,6 @@ from executor import CLIPEncoder, PDFDocument, PDFExtractorExecutor
 docs = DocArray[PDFDocument]([PDFDocument(path='rabbit.pdf')])
 
 content_types = ['text', 'image', 'table', 'metadata']
-content_types = ['image']
 
 flow = (
     Flow()
