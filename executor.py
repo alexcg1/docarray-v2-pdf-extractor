@@ -157,11 +157,11 @@ class CLIPEncoder(Executor):
     def encode(self, docs: DocArray[PDFDocument], **kwargs):
         print('Encoding chunks')
         for doc in docs:
-            for chunk in doc.texts[0:2]:
+            for chunk in doc.texts:
                 self._clip_encode(chunk)
             for chunk in doc.tables:
                 self._clip_encode(chunk)
-            for chunk in doc.images[0:2]:
+            for chunk in doc.images:
                 self._clip_encode(chunk)
 
     def _clip_encode(self, doc: PDFDocument):
