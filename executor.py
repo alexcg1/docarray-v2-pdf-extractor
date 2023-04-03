@@ -1,12 +1,18 @@
 import csv
 import io
+import os
 import tempfile
+from pprint import pprint
 
 import pdfplumber
+import requests as rq
 from docarray import BaseDoc, DocArray
 from docarray.documents import ImageDoc, TextDoc
 from docarray.typing import AnyUrl
+from dotenv import load_dotenv
 from jina import Executor, requests
+
+load_dotenv()
 
 
 class ImageChunk(ImageDoc):
@@ -138,3 +144,43 @@ class PDFExtractorExecutor(Executor):
                     )
                     image_doc.tensor = image_doc.url.load()
                     doc.images.append(image_doc)
+
+
+class CLIPEncoder(Executor):
+    def __init__(
+        self,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+    @requests
+    def encode(self, docs: DocArray[PDFDocument], **kwargs):
+        for doc in docs:
+            for chunk in doc.texts:
+                self._clip_encode(chunk)
+            for chunk in doc.tables:
+                self._clip_encode(chunk)
+            # for chunk in doc.images:
+            # self._clip_encode(chunk)
+
+    def _clip_encode(self, doc: PDFDocument):
+        url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
+        if type(doc) == 'ImageChunk':
+            data = 'foo'   # rewrite to get url
+        else:
+            data = {'text': doc.text}
+
+        payload = {
+            'data': [data],
+            'execEndpoint': '/',
+        }
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': os.getenv('JINA_TOKEN'),
+        }
+
+        response = rq.post(url, json=payload, headers=headers)
+
+        content = response.json()
+        doc.embedding = content['data'][0]['embedding']
