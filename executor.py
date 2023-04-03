@@ -155,8 +155,9 @@ class CLIPEncoder(Executor):
 
     @requests
     def encode(self, docs: DocArray[PDFDocument], **kwargs):
+        print('Encoding chunks')
         for doc in docs:
-            for chunk in doc.texts:
+            for chunk in doc.texts[0:2]:
                 self._clip_encode(chunk)
             for chunk in doc.tables:
                 self._clip_encode(chunk)
@@ -165,10 +166,11 @@ class CLIPEncoder(Executor):
 
     def _clip_encode(self, doc: PDFDocument):
         url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
-        if type(doc) == 'ImageChunk':
-            data = 'foo'   # rewrite to get url
-        else:
-            data = {'text': doc.text}
+        print(type(doc))
+        # if type(doc) == 'ImageChunk':
+        # data = 'foo'   # rewrite to get url
+        # else:
+        data = {'text': doc.text}
 
         payload = {
             'data': [data],
@@ -183,4 +185,5 @@ class CLIPEncoder(Executor):
         response = rq.post(url, json=payload, headers=headers)
 
         content = response.json()
+        # pprint(content)
         doc.embedding = content['data'][0]['embedding']

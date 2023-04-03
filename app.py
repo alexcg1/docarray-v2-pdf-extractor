@@ -29,3 +29,4 @@ with flow:
     )
 
 print(output[0])
+print(output[0].texts[0])
