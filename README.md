@@ -7,9 +7,9 @@ This script takes a PDF and:
 
 ## TODO
 
-- [ ] Convert to Jina Executor
-- [ ] Tidy up leftover files from image extraction
-- [ ] Extract tables
-- [ ] Add file and page info to chunks
+- [X] Convert to Jina Executor
+- [X] Tidy up leftover files from image extraction
+- [X] Extract tables
+- [X] Add file and page info to chunks
 - [ ] Write tests
 - [ ] Encode chunks
