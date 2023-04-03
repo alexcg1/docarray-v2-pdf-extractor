@@ -161,16 +161,18 @@ class CLIPEncoder(Executor):
                 self._clip_encode(chunk)
             for chunk in doc.tables:
                 self._clip_encode(chunk)
-            # for chunk in doc.images:
-            # self._clip_encode(chunk)
+            for chunk in doc.images[0:2]:
+                self._clip_encode(chunk)
 
     def _clip_encode(self, doc: PDFDocument):
         url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
-        print(type(doc))
-        # if type(doc) == 'ImageChunk':
-        # data = 'foo'   # rewrite to get url
-        # else:
-        data = {'text': doc.text}
+
+        if isinstance(doc, TextChunk):
+            data = {'text': doc.text}
+        elif isinstance(doc, ImageChunk):
+            data = {'url': doc.url}
+        else:
+            raise TypeError('Unsupported type')
 
         payload = {
             'data': [data],
@@ -185,5 +187,4 @@ class CLIPEncoder(Executor):
         response = rq.post(url, json=payload, headers=headers)
 
         content = response.json()
-        # pprint(content)
         doc.embedding = content['data'][0]['embedding']
