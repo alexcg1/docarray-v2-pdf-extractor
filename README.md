@@ -12,4 +12,5 @@ This script takes a PDF and:
 - [X] Extract tables
 - [X] Add file and page info to chunks
 - [ ] Write tests
-- [ ] Encode chunks
+- [X] Encode chunks
+- [ ] Add Document Store
