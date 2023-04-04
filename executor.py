@@ -2,13 +2,13 @@ import csv
 import io
 import os
 import tempfile
-from pprint import pprint
 
 import pdfplumber
 import requests as rq
 from docarray import BaseDoc, DocArray
 from docarray.documents import ImageDoc, TextDoc
 from docarray.typing import AnyUrl
+from docarray.utils.map import map_docs
 from dotenv import load_dotenv
 from jina import Executor, requests
 
@@ -16,6 +16,7 @@ load_dotenv()
 
 
 class ImageChunk(ImageDoc):
+    ocr_caption: str = ''
     tags: dict = {}
 
 
@@ -33,7 +34,7 @@ class PDFDocument(BaseDoc):
     mod_date: str | None
 
 
-class PDFExtractorExecutor(Executor):
+class PDFExtractor(Executor):
     def __init__(
         self,
         content_types: list = ['text', 'table', 'image', 'metadata'],
@@ -157,16 +158,22 @@ class CLIPEncoder(Executor):
     def encode(self, docs: DocArray[PDFDocument], **kwargs):
         print('Encoding chunks')
         for doc in docs:
-            for chunk in doc.texts:
-                self._clip_encode(chunk)
-            for chunk in doc.tables:
-                self._clip_encode(chunk)
-            for chunk in doc.images:
-                self._clip_encode(chunk)
+            doc.texts = DocArray[TextChunk](
+                list(map_docs(doc.texts, clip_encode_chunk))
+            )
+            # for chunk in doc.texts:
+            doc.tables = DocArray[TextChunk](
+                list(map_docs(doc.tables, clip_encode_chunk))
+            )
+            doc.images = DocArray[ImageChunk](
+                list(map_docs(doc.images, clip_encode_chunk))
+            )
 
-    def _clip_encode(self, doc: PDFDocument):
-        url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
 
+def clip_encode_doc(docs):
+    url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
+
+    for doc in docs:
         if isinstance(doc, TextChunk):
             data = {'text': doc.text}
         elif isinstance(doc, ImageChunk):
@@ -188,3 +195,31 @@ class CLIPEncoder(Executor):
 
         content = response.json()
         doc.embedding = content['data'][0]['embedding']
+
+
+def clip_encode_chunk(doc: TextChunk | ImageChunk):
+    url = 'https://evolving-lacewing-2d90dee9c4-http.wolf.jina.ai/post'
+
+    if isinstance(doc, TextChunk):
+        data = {'text': doc.text}
+    elif isinstance(doc, ImageChunk):
+        data = {'url': doc.url}
+    else:
+        raise TypeError('Unsupported type')
+
+    payload = {
+        'data': [data],
+        'execEndpoint': '/',
+    }
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': os.getenv('JINA_TOKEN'),
+    }
+
+    response = rq.post(url, json=payload, headers=headers)
+
+    content = response.json()
+    doc.embedding = content['data'][0]['embedding']
+
+    return doc
