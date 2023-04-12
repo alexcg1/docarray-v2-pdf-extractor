@@ -5,8 +5,9 @@ from docarray import DocArray
 from docarray.utils.find import find
 from jina import Flow
 
-from executor import (CLIPEncoder, PDFDocument, PDFExtractor, TextChunk,
-                      clip_encode_chunk)
+from executors.clip_encoder import CLIPEncoder, clip_encode_chunk
+from executors.extractor import PDFExtractor
+from executors.helper import PDFDocument, TextChunk
 
 if os.path.isfile('index.p'):
     print('Using previously-saved index')
@@ -46,9 +47,9 @@ clip_encode_chunk(query_doc)
 
 # get results
 top_matches, scores = find(
-    index=index[0].texts,
+    index=index,
     query=query_doc,
-    embedding_field='embedding',
+    embedding_field='texts__embedding',
     metric='cosine_sim',
 )
 
